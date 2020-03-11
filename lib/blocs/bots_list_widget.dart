@@ -34,11 +34,15 @@ class BotsListWidgetState extends State<BotsListWidget> {
   @override
   void initState() {
     super.initState();
-    this.bots = gameInfo.botInfoList;
+    setState(() {
+      bots = gameInfo.botInfoList;
+    });
   }
 
   void refreshBots() {
-    bots = gameInfo.botInfoList;
+    setState(() {
+      bots = gameInfo.botInfoList;
+    });
   }
 
   ListTile _buildBotTile(BuildContext context, int index) {
@@ -54,9 +58,9 @@ class BotsListWidgetState extends State<BotsListWidget> {
     return Column(
         children: <Widget>[
           bots.isEmpty ? Text("No bot to display") :
-          ListView.builder(
-            itemCount: bots.length,
-            itemBuilder: _buildBotTile,
+          Column(
+            children: new List.generate(bots.length,
+                (index) => _buildBotTile(context, index)).toList(),
           ),
           RaisedButton(
             child: Text("Create new bot"),
@@ -67,7 +71,14 @@ class BotsListWidgetState extends State<BotsListWidget> {
   }
 
   void _openBot(BotInfo bot) {
-    print('open ${bot.login}');
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => BotEditionWidget(
+                bot: bot
+            )
+        )
+    );
   }
 
   void _createBot(GameInfo game) {

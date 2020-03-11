@@ -25,7 +25,9 @@ class GamesListWidgetState extends State<GamesListWidget> {
   }
 
   void _populateNewGames() {
-    _isLoading = true;
+    setState(() {
+      _isLoading = true;
+    });
     ApiProvider.load(ApiProvider.gameInfoListResource).then((games) {
       setState(() {
         _games = games.gameInfoList;

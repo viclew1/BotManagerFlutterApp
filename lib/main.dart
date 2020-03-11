@@ -21,9 +21,6 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
 
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
-  GamesListWidgetState _gamesBlocWidgetState = GamesListWidgetState();
-
   @override
   void initState() {
     super.initState();

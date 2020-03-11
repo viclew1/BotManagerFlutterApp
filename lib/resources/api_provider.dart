@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 
+import 'package:bot_manager_mobile_app/models/bot_property_model.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
 import 'package:http/http.dart';
 
@@ -26,6 +27,24 @@ class ApiProvider {
         url: "$BASE_URL/bots/all",
         parse: (response) {
           return GameInfoList.fromJson(json.decode(response.body));
+        }
+    );
+  }
+
+  static Resource<BotPropertyList> getGamePropertiesResource(int gameId) {
+    return Resource(
+        url: "$BASE_URL/bots/$gameId/properties",
+        parse: (response) {
+          return BotPropertyList.fromJson(json.decode(response.body));
+        }
+    );
+  }
+
+  static Resource<Map<String, dynamic>> getBotPropertiesResource(int botId) {
+    return Resource(
+        url: "$BASE_URL/bots/bot/$botId/properties",
+        parse: (response) {
+          return json.decode(response.body);
         }
     );
   }
