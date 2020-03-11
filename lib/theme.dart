@@ -7,7 +7,7 @@ class AppColors {
   static const Color pinkColor = const Color.fromRGBO(255, 64, 108, 1.0);
   static const Color whiteColor = const Color.fromRGBO(255, 255, 255, 1.0);
   static const Color blackColor = const Color.fromRGBO(0, 0, 0, 1.0);
-  static const Color greyColor = const Color(0xffE8E8E8);
+  static const Color greyColor = const Color.fromRGBO(80, 80, 80, 1);
 }
 
 class AppTextStyles {

@@ -6,17 +6,13 @@ import 'package:http/http.dart';
 
 class ApiProvider {
 
-  static const BASE_URL = 'http://10.0.2.2:8080/';
+  static const BASE_URL = 'http://145.239.76.24:35678/';
 
-  Client client = new Client();
-
-  List<dynamic> genres = <dynamic>[];
-
-  Future<GameInfoList> fetchGameInfoList() async {
+  static Future<T> load<T>(Resource<T> resource) async {
     try {
-      final response = await client.get("$BASE_URL/bots/all");
+      final response = await new Client().get(resource.url);
       if (response.statusCode == 200) {
-        return GameInfoList.fromJson(json.decode(response.body));
+        return resource.parse(response);
       } else {
         throw Exception('Failed to load games');
       }
@@ -25,4 +21,20 @@ class ApiProvider {
     }
   }
 
+  static Resource<GameInfoList> get gameInfoListRessource {
+    return Resource(
+        url: "$BASE_URL/bots/all",
+        parse: (response) {
+          return GameInfoList.fromJson(json.decode(response.body));
+        }
+    );
+  }
+
+}
+
+class Resource<T> {
+  final String url;
+  T Function(Response response) parse;
+
+  Resource({this.url,this.parse});
 }

@@ -1,15 +1,13 @@
-import 'dart:convert';
 
-import 'package:bot_manager_mobile_app/ui/games_list.dart';
+import 'package:bot_manager_mobile_app/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import 'blocs/games_bloc_widget.dart';
+import 'blocs/games_list_widget.dart';
 
 void main() => runApp(MaterialApp(
-  title: "Poke App",
+  title: "Bot Manager",
   home: HomePage(),
   debugShowCheckedModeBanner: false,
 ));
@@ -24,6 +22,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
 
   RefreshController _refreshController = RefreshController(initialRefresh: false);
+  GamesListWidgetState _gamesBlocWidgetState = GamesListWidgetState();
 
   @override
   void initState() {
@@ -33,28 +32,19 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: false,
-        onRefresh: _onRefresh,
-        header: WaterDropHeader(),
-        controller: _refreshController,
-        child: new GamesBlocWidget(
-          child: new Container(
-            child: new Stack(
-              fit: StackFit.expand,
-              children: <Widget>[
-                new BottomAppBar(),
-                new MoviesList()
-              ],
-            ),
-          ),
-        )
+      appBar: AppBar(
+        backgroundColor: AppColors.greyColor,
+        title: Text('Games'),
+      ),
+      body: new Container(
+        child: new Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            GamesListWidget(),
+          ],
+        ),
       )
     );
   }
 
-  void _onRefresh() async {
-
-  }
 }

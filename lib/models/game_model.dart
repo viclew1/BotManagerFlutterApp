@@ -1,13 +1,13 @@
 import 'package:bot_manager_mobile_app/resources/api_provider.dart';
 
+import 'bot_model.dart';
+
 class GameInfo {
 
   int id;
   String name;
   List<BotInfo> botInfoList;
   String iconPath;
-  bool isError = false;
-  String errorMessage = "";
 
 
   GameInfo({
@@ -31,8 +31,6 @@ class GameInfo {
 class GameInfoList {
 
   List<GameInfo> gameInfoList;
-  bool isError = false;
-  String errorMessage = "";
 
   GameInfoList({
     this.gameInfoList
@@ -43,28 +41,4 @@ class GameInfoList {
         gameInfoList: (json["game_info_list"] as List).map((i) => GameInfo.fromJson(i)).toList()
     );
   }
-}
-
-class BotInfo {
-
-  int id;
-  String login;
-  String state;
-  bool isError = false;
-  String errorMessage = "";
-
-  BotInfo({
-    this.id,
-    this.login,
-    this.state
-  });
-
-  factory BotInfo.fromJson(Map<String, dynamic> json) {
-    return BotInfo(
-      id: json["id"],
-      login: json["login"],
-      state: json["state"]
-    );
-  }
-
 }
