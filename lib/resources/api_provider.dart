@@ -21,7 +21,7 @@ class ApiProvider {
     }
   }
 
-  static Resource<GameInfoList> get gameInfoListRessource {
+  static Resource<GameInfoList> get gameInfoListResource {
     return Resource(
         url: "$BASE_URL/bots/all",
         parse: (response) {

@@ -36,14 +36,7 @@ class HomePageState extends State<HomePage> {
         backgroundColor: AppColors.greyColor,
         title: Text('Games'),
       ),
-      body: new Container(
-        child: new Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            GamesListWidget(),
-          ],
-        ),
-      )
+      body: GamesListWidget()
     );
   }
 

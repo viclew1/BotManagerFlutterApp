@@ -1,3 +1,4 @@
+import 'package:bot_manager_mobile_app/blocs/bots_list_widget.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
 import 'package:bot_manager_mobile_app/resources/api_provider.dart';
 import 'package:bot_manager_mobile_app/theme.dart';
@@ -25,7 +26,7 @@ class GamesListWidgetState extends State<GamesListWidget> {
 
   void _populateNewGames() {
     _isLoading = true;
-    ApiProvider.load(ApiProvider.gameInfoListRessource).then((games) {
+    ApiProvider.load(ApiProvider.gameInfoListResource).then((games) {
       setState(() {
         _games = games.gameInfoList;
         _isLoading = false;
@@ -40,9 +41,9 @@ class GamesListWidgetState extends State<GamesListWidget> {
     _populateNewGames();
   }
 
-  ListTile _buildGameTile(BuildContext context, int index) {
-    return ListTile(
-      trailing: _games[index].iconPath == null ? Icons.games :
+  ExpansionTile _buildGameTile(BuildContext context, int index) {
+    return ExpansionTile(
+      leading: _games[index].iconPath == null ? Icons.games :
       AspectRatio(
         aspectRatio: 1.5,
         child: new Container(
@@ -66,6 +67,11 @@ class GamesListWidgetState extends State<GamesListWidget> {
       ),
       title: Text(_games[index].name, style: TextStyle(fontSize: 18)),
       subtitle: Text('Running bots : ${_games[index].botInfoList.length}'),
+      children: <Widget>[
+        BotsListWidget(
+          gameInfo: _games[index]
+        )
+      ],
     );
   }
 
