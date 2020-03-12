@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bot_manager_mobile_app/blocs/bots_list_widget.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
 import 'package:bot_manager_mobile_app/resources/api_provider.dart';
@@ -80,9 +82,26 @@ class GamesListWidgetState extends State<GamesListWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: ListView.builder(
-          itemCount: _games.length,
-          itemBuilder: _buildGameTile,
+        appBar: AppBar(
+          backgroundColor: AppColors.greyColor,
+          title: Text('Games'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: refreshGames,
+            )
+          ],
+        ),
+        body: Stack(
+          children: <Widget>[
+            _isLoading ? Center(
+                child: CircularProgressIndicator()
+            ) : Text(""),
+            ListView.builder(
+              itemCount: _games.length,
+              itemBuilder: _buildGameTile,
+            )
+          ],
         )
     );
   }

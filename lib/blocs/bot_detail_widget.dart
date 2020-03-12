@@ -80,15 +80,22 @@ abstract class BotDetailsState extends State<BotDetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: _props.length,
-      itemBuilder: ((context, index) {
-        String key = _props.keys.elementAt(index);
-        return new ListTile(
-          title: new Text("$key"),
-          subtitle: new Text("${_props[key]}"),
-        );
-      })
+    return Stack(
+      children: <Widget>[
+        _isLoading ? Center(
+            child: CircularProgressIndicator()
+        ) : Text(""),
+        ListView.builder(
+          itemCount: _props.length,
+          itemBuilder: ((context, index) {
+            String key = _props.keys.elementAt(index);
+            return new ListTile(
+              title: new Text("$key"),
+              subtitle: new Text("${_props[key]}"),
+            );
+          })
+        )
+      ]
     );
     return Text("Details of bot");
   }

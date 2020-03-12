@@ -28,13 +28,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.greyColor,
-        title: Text('Games'),
-      ),
-      body: GamesListWidget()
-    );
+    return GamesListWidget();
   }
 
 }
