@@ -5,6 +5,8 @@ import 'package:bot_manager_mobile_app/resources/api_provider.dart';
 import 'package:bot_manager_mobile_app/theme.dart';
 import 'package:flutter/material.dart';
 
+import 'bot_list_element_widget.dart';
+
 class BotsListWidget extends StatefulWidget {
 
   final GameInfo gameInfo;
@@ -45,12 +47,8 @@ class BotsListWidgetState extends State<BotsListWidget> {
     });
   }
 
-  ListTile _buildBotTile(BuildContext context, int index) {
-    return ListTile(
-        title: Text(bots[index].login, style: TextStyle(fontSize: 18)),
-        subtitle: Text('Bot state : ${bots[index].state}'),
-        onTap: () => _openBot(bots[index]),
-    );
+  Widget _buildBotTile(BuildContext context, int index) {
+    return new BotListElementWidget(bots[index]);
   }
 
   @override
@@ -67,17 +65,6 @@ class BotsListWidgetState extends State<BotsListWidget> {
             onPressed: () => _createBot(gameInfo),
           )
         ]
-    );
-  }
-
-  void _openBot(BotInfo bot) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => BotEditionWidget(
-                bot: bot
-            )
-        )
     );
   }
 

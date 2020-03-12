@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bot_manager_mobile_app/blocs/bots_list_widget.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
 import 'package:bot_manager_mobile_app/resources/api_provider.dart';
@@ -30,7 +28,7 @@ class GamesListWidgetState extends State<GamesListWidget> {
     setState(() {
       _isLoading = true;
     });
-    ApiProvider.load(ApiProvider.gameInfoListResource).then((games) {
+    ApiProvider.httpGet(ApiProvider.gameInfoListResource).then((games) {
       setState(() {
         _games = games.gameInfoList;
         _isLoading = false;
@@ -70,7 +68,9 @@ class GamesListWidgetState extends State<GamesListWidget> {
         ),
       ),
       title: Text(_games[index].name, style: TextStyle(fontSize: 18)),
-      subtitle: Text('Running bots : ${_games[index].botInfoList.length}'),
+      subtitle: Text('Running bots : ${_games[index].botInfoList.length} (active : ${
+        _games[index].botInfoList.where((e) => e.state == "ACTIVE").length
+      })'),
       children: <Widget>[
         BotsListWidget(
           gameInfo: _games[index]
@@ -94,9 +94,10 @@ class GamesListWidgetState extends State<GamesListWidget> {
         ),
         body: Stack(
           children: <Widget>[
-            _isLoading ? Center(
+            if (_isLoading)
+              Center(
                 child: CircularProgressIndicator()
-            ) : Text(""),
+              ),
             ListView.builder(
               itemCount: _games.length,
               itemBuilder: _buildGameTile,

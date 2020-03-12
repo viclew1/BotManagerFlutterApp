@@ -8,6 +8,7 @@ import 'package:bot_manager_mobile_app/resources/api_provider.dart';
 import 'package:bot_manager_mobile_app/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BotCreationWidget extends StatelessWidget {
 
@@ -69,7 +70,7 @@ abstract class BotDetailsWidget extends StatefulWidget {
 
 abstract class BotDetailsState extends State<BotDetailsWidget> {
 
-  Map<String, dynamic> _props = HashMap();
+  Map<BotProperty, dynamic> _props = HashMap();
   bool _isLoading = false;
 
   @override
@@ -82,25 +83,75 @@ abstract class BotDetailsState extends State<BotDetailsWidget> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        _isLoading ? Center(
+        if (_isLoading)
+          Center(
             child: CircularProgressIndicator()
-        ) : Text(""),
-        ListView.builder(
-          itemCount: _props.length,
-          itemBuilder: ((context, index) {
-            String key = _props.keys.elementAt(index);
-            return new ListTile(
-              title: new Text("$key"),
-              subtitle: new Text("${_props[key]}"),
-            );
-          })
-        )
+          ),
+        _buildPropertiesEditionWidget()
       ]
     );
-    return Text("Details of bot");
   }
 
   void refresh();
+
+  Widget _buildPropertiesEditionWidget() {
+    return ListView.builder(
+        itemCount: _props.length,
+        itemBuilder: ((context, index) {
+          BotProperty key = _props.keys.elementAt(index);
+          return _buildPropertyTile(key);
+        })
+    );
+  }
+
+  Widget _buildPropertyTile(BotProperty key) {
+    if (key.acceptedValues.isNotEmpty) {
+
+    }
+    switch (key.type) {
+      case "BOOLEAN":
+        return SwitchListTile(
+            title: new Text("${key.key}"),
+            value: _props[key],
+            onChanged: (value) {
+              setState(() {
+                _props[key] = value;
+              });
+            },
+        );
+      case "INTEGER":
+        return ListTile(
+          title: new Text("${key.key}"),
+          trailing: Container(
+            width: 70,
+            child: TextFormField(
+              initialValue: _props[key]?.toString(),
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              inputFormatters: <TextInputFormatter>[
+                WhitelistingTextInputFormatter.digitsOnly
+              ], // Only numbers can be entered
+            ),
+          ),
+        );
+      case "STRING":
+        return ListTile(
+          title: new Text("${key.key}"),
+          trailing: Container(
+            width: 70,
+            child: TextFormField(
+              initialValue: _props[key]?.toString(),
+            ),
+          ),
+        );
+      case "":
+        return SwitchListTile(title: new Text("${key.key}"));
+    }
+    return new ListTile(
+      title: new Text("${key.key}"),
+      subtitle: new Text("${_props[key]}"),
+    );
+  }
 
 }
 
@@ -129,10 +180,10 @@ class BotDetailsEditionState extends BotDetailsState {
     setState(() {
       _isLoading = true;
     });
-    ApiProvider.load(ApiProvider.getBotPropertiesResource(bot.id)).then((botProps) {
-      ApiProvider.load(ApiProvider.getGamePropertiesResource(bot.gameId)).then((props) {
+    ApiProvider.httpGet(ApiProvider.getBotPropertiesResource(bot.id)).then((botProps) {
+      ApiProvider.httpGet(ApiProvider.getGamePropertiesResource(bot.gameId)).then((props) {
         setState(() {
-          _props = Map.fromIterable(props.botProperties, key: (e) => e.key,
+          _props = Map.fromIterable(props.botProperties, key: (e) => e,
               value: (e) => botProps[e.key]);
           _isLoading = false;
         });
@@ -166,9 +217,9 @@ class BotDetailsCreationState extends BotDetailsState {
     setState(() {
       _isLoading = true;
     });
-    ApiProvider.load(ApiProvider.getGamePropertiesResource(game.id)).then((props) {
+    ApiProvider.httpGet(ApiProvider.getGamePropertiesResource(game.id)).then((props) {
       setState(() {
-        _props = Map.fromIterable(props.botProperties, key: (e) => e.key, value: (e) => e.defaultValue);
+        _props = Map.fromIterable(props.botProperties, key: (e) => e, value: (e) => e.defaultValue);
         _isLoading = false;
       });
     });

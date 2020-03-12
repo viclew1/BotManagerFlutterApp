@@ -1,8 +1,6 @@
 
-import 'package:bot_manager_mobile_app/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'blocs/games_list_widget.dart';
 
