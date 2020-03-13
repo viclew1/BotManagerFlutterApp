@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bot_manager_mobile_app/blocs/bots_list_widget.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
 import 'package:bot_manager_mobile_app/resources/api_provider.dart';
@@ -24,7 +26,7 @@ class GamesListWidgetState extends State<GamesListWidget> {
     _populateNewGames();
   }
 
-  void _populateNewGames() {
+  Future<void> _populateNewGames() async {
     setState(() {
       _isLoading = true;
     });
@@ -38,10 +40,6 @@ class GamesListWidgetState extends State<GamesListWidget> {
 
   List<GameInfo> get  games => _games;
   bool get isLoading => _isLoading;
-
-  void refreshGames() {
-    _populateNewGames();
-  }
 
   ExpansionTile _buildGameTile(BuildContext context, int index) {
     return ExpansionTile(
@@ -73,7 +71,10 @@ class GamesListWidgetState extends State<GamesListWidget> {
       })'),
       children: <Widget>[
         BotsListWidget(
-          gameInfo: _games[index]
+          gameInfo: _games[index],
+          gameListUpdateCallback: () {
+            setState(() => {});
+          },
         )
       ],
     );
@@ -81,28 +82,31 @@ class GamesListWidgetState extends State<GamesListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return RefreshIndicator(
+      onRefresh: _populateNewGames,
+        child: Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.greyColor,
           title: Text('Games'),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.refresh),
-              onPressed: refreshGames,
+              onPressed: _populateNewGames,
             )
           ],
         ),
         body: Stack(
           children: <Widget>[
-            if (_isLoading)
-              Center(
-                child: CircularProgressIndicator()
-              ),
             ListView.builder(
               itemCount: _games.length,
               itemBuilder: _buildGameTile,
-            )
+            ),
+            if (_isLoading)
+              Center(
+                  child: CircularProgressIndicator()
+              ),
           ],
+        )
         )
     );
   }

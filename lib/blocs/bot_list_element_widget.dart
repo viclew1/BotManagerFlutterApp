@@ -8,12 +8,13 @@ import 'bot_detail_widget.dart';
 class BotListElementWidget extends StatefulWidget {
 
   final BotInfo bot;
+  final Function(BotInfo bot) botListUpdateCallback;
 
-  BotListElementWidget(this.bot);
+  BotListElementWidget(this.bot, this.botListUpdateCallback);
 
   @override
   State<StatefulWidget> createState() {
-    return new BotListElementState(bot);
+    return new BotListElementState(bot, botListUpdateCallback);
   }
 
 }
@@ -21,25 +22,55 @@ class BotListElementWidget extends StatefulWidget {
 class BotListElementState extends State<BotListElementWidget> with SingleTickerProviderStateMixin {
 
   BotInfo _bot;
+  Function(BotInfo bot) botListUpdateCallback;
   bool _isLoading = false;
 
-  BotListElementState(this._bot);
+  BotListElementState(this._bot, this.botListUpdateCallback);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(_bot.login, style: TextStyle(fontSize: 18)),
       subtitle: Text('Bot state : ${_bot.state}'),
-      trailing: Container(
-        width: 160,
-        child: ButtonBar(
-         children: <Widget>[
-           if (_bot.availableTransitions.contains("START")) _startFab(_bot),
-           if (_bot.availableTransitions.contains("STOP")) _stopFab(_bot),
-           _editFab(_bot)
-         ],
-        )
+      trailing: PopupMenuButton(
+        color: AppColors.greyColor,
+        onSelected: (value) {
+          switch (value) {
+            case "EDIT": return _editBot(_bot);
+            default:
+              return _processBotTransition(_bot, value);
+          }
+        },
+        itemBuilder: (context) {
+          return _buildBotPopupMenuItems();
+        }
       )
+    );
+  }
+
+  List<PopupMenuEntry<String>> _buildBotPopupMenuItems() {
+    return [
+      _buildBotPopupMenuItem("EDIT", "Edit bot", Icons.edit),
+      if (_bot.availableTransitions.contains("START")) _buildBotPopupMenuItem("START", "Start bot", Icons.play_arrow),
+      if (_bot.availableTransitions.contains("STOP")) _buildBotPopupMenuItem("STOP", "Stop bot", Icons.stop),
+    ];
+  }
+
+  PopupMenuEntry<String> _buildBotPopupMenuItem(String value, String text, IconData iconData, [Function onTap]) {
+    return PopupMenuItem(
+      value: value,
+      child: ListTile(
+        title: Text(
+          text,
+          style: TextStyle(
+              color: AppColors.whiteColor
+          ),
+        ),
+        leading: Icon(
+          iconData,
+          color: AppColors.whiteColor,
+        ),
+      ),
     );
   }
 
@@ -90,7 +121,8 @@ class BotListElementState extends State<BotListElementWidget> with SingleTickerP
         context,
         MaterialPageRoute(
             builder: (context) => BotEditionWidget(
-                bot: bot
+                bot: bot,
+                botListUpdateCallback: refreshBot,
             )
         )
     );
@@ -99,6 +131,7 @@ class BotListElementState extends State<BotListElementWidget> with SingleTickerP
   void refreshBot(BotInfo bot) {
     ApiProvider.httpGet(ApiProvider.getBotInfoResource(bot.id)).then((bot) {
       setState(() {
+        botListUpdateCallback(bot);
         this._bot = bot;
         _isLoading = false;
       });

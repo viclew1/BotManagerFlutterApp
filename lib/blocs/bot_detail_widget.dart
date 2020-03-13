@@ -13,9 +13,11 @@ import 'package:flutter/services.dart';
 class BotCreationWidget extends StatelessWidget {
 
   final GameInfo game;
+  final Function(BotInfo bot) botListUpdateCallback;
 
   BotCreationWidget({
-    this.game
+    this.game,
+    this.botListUpdateCallback
   });
 
   @override
@@ -24,7 +26,7 @@ class BotCreationWidget extends StatelessWidget {
       appBar: AppBar(
         title: Text("Bot creation : ${game.name}"),
       ),
-      body: BotDetailsCreationWidget(game)
+      body: BotDetailsCreationWidget(game, botListUpdateCallback)
     );
   }
 
@@ -33,9 +35,11 @@ class BotCreationWidget extends StatelessWidget {
 class BotEditionWidget extends StatelessWidget {
 
   final BotInfo bot;
+  final Function(BotInfo bot) botListUpdateCallback;
 
   BotEditionWidget({
-    this.bot
+    this.bot,
+    this.botListUpdateCallback
   });
 
   @override
@@ -45,7 +49,7 @@ class BotEditionWidget extends StatelessWidget {
           backgroundColor: AppColors.greyColor,
           title: Text("Bot edition : ${troncateStr(bot.login, 15)}"),
         ),
-        body: BotDetailsEditionWidget(bot)
+        body: BotDetailsEditionWidget(bot, this.botListUpdateCallback)
     );
   }
 
@@ -83,11 +87,11 @@ abstract class BotDetailsState extends State<BotDetailsWidget> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
+        _buildPropertiesEditionWidget(),
         if (_isLoading)
           Center(
             child: CircularProgressIndicator()
           ),
-        _buildPropertiesEditionWidget()
       ]
     );
   }
@@ -158,12 +162,13 @@ abstract class BotDetailsState extends State<BotDetailsWidget> {
 class BotDetailsEditionWidget extends BotDetailsWidget {
 
   final BotInfo bot;
+  final Function(BotInfo bot) botListUpdateCallback;
 
-  BotDetailsEditionWidget(this.bot);
+  BotDetailsEditionWidget(this.bot, this.botListUpdateCallback);
 
   @override
   State createState() {
-    return BotDetailsEditionState(bot);
+    return BotDetailsEditionState(bot, this.botListUpdateCallback);
   }
 
 
@@ -172,8 +177,9 @@ class BotDetailsEditionWidget extends BotDetailsWidget {
 class BotDetailsEditionState extends BotDetailsState {
 
   final BotInfo bot;
+  final Function(BotInfo bot) botListUpdateCallback;
 
-  BotDetailsEditionState(this.bot);
+  BotDetailsEditionState(this.bot, this.botListUpdateCallback);
 
   @override
   void refresh() {
@@ -196,12 +202,13 @@ class BotDetailsEditionState extends BotDetailsState {
 class BotDetailsCreationWidget extends BotDetailsWidget {
 
   final GameInfo game;
+  final Function(BotInfo bot) botListUpdateCallback;
 
-  BotDetailsCreationWidget(this.game);
+  BotDetailsCreationWidget(this.game, this.botListUpdateCallback);
 
   @override
   State<StatefulWidget> createState() {
-    return BotDetailsCreationState(this.game);
+    return BotDetailsCreationState(this.game, this.botListUpdateCallback);
   }
 
 }
@@ -209,8 +216,9 @@ class BotDetailsCreationWidget extends BotDetailsWidget {
 class BotDetailsCreationState extends BotDetailsState {
 
   final GameInfo game;
+  final Function(BotInfo bot) botListUpdateCallback;
 
-  BotDetailsCreationState(this.game);
+  BotDetailsCreationState(this.game, this.botListUpdateCallback);
 
   @override
   void refresh() {

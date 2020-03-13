@@ -10,16 +10,16 @@ import 'bot_list_element_widget.dart';
 class BotsListWidget extends StatefulWidget {
 
   final GameInfo gameInfo;
+  final Function() gameListUpdateCallback;
 
   BotsListWidget({
-    this.gameInfo
+    this.gameInfo,
+    this.gameListUpdateCallback
   });
 
   @override
   State<StatefulWidget> createState() {
-    return BotsListWidgetState(
-      gameInfo: gameInfo
-    );
+    return BotsListWidgetState(gameInfo, gameListUpdateCallback);
   }
 
 }
@@ -27,11 +27,10 @@ class BotsListWidget extends StatefulWidget {
 class BotsListWidgetState extends State<BotsListWidget> {
 
   final GameInfo gameInfo;
+  final Function() botListUpdateCallback;
   List<BotInfo> bots = List<BotInfo>();
 
-  BotsListWidgetState({
-    this.gameInfo
-  });
+  BotsListWidgetState(this.gameInfo, this.botListUpdateCallback);
 
   @override
   void initState() {
@@ -41,14 +40,22 @@ class BotsListWidgetState extends State<BotsListWidget> {
     });
   }
 
-  void refreshBots() {
+  Widget _buildBotTile(BuildContext context, int index) {
+    return new BotListElementWidget(bots[index], (bot) => _updateBot(bot, index));
+  }
+
+  void _updateBot(BotInfo bot, int index) {
     setState(() {
-      bots = gameInfo.botInfoList;
+      bots[index] = bot;
+      botListUpdateCallback();
     });
   }
 
-  Widget _buildBotTile(BuildContext context, int index) {
-    return new BotListElementWidget(bots[index]);
+  void _addBot(BotInfo bot) {
+    setState(() {
+      bots.add(bot);
+      botListUpdateCallback();
+    });
   }
 
   @override
@@ -73,7 +80,8 @@ class BotsListWidgetState extends State<BotsListWidget> {
         context,
         MaterialPageRoute(
           builder: (context) => BotCreationWidget(
-              game: game
+              game: game,
+              botListUpdateCallback: (bot) => _addBot(bot),
           )
         )
     );
