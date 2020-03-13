@@ -60,18 +60,20 @@ class BotsListWidgetState extends State<BotsListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-        children: <Widget>[
-          bots.isEmpty ? Text("No bot to display") :
-          Column(
-            children: new List.generate(bots.length,
+    return ListView(
+      shrinkWrap: true,
+      physics: ClampingScrollPhysics(),
+      children: <Widget>[
+        bots.isEmpty ? Text("No bot to display") :
+        Column(
+          children: new List.generate(bots.length,
                 (index) => _buildBotTile(context, index)).toList(),
-          ),
-          RaisedButton(
-            child: Text("Create new bot"),
-            onPressed: () => _createBot(gameInfo),
-          )
-        ]
+        ),
+        RaisedButton(
+          child: Text("Create new bot"),
+          onPressed: () => _createBot(gameInfo),
+        )
+      ]
     );
   }
 

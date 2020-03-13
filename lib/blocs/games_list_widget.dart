@@ -88,12 +88,6 @@ class GamesListWidgetState extends State<GamesListWidget> {
         appBar: AppBar(
           backgroundColor: AppColors.greyColor,
           title: Text('Games'),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: _populateNewGames,
-            )
-          ],
         ),
         body: Stack(
           children: <Widget>[
