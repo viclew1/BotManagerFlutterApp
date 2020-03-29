@@ -1,88 +1,156 @@
-
 import 'dart:convert';
 
+import 'package:bot_manager_mobile_app/models/bot_log_model.dart';
 import 'package:bot_manager_mobile_app/models/bot_model.dart';
+import 'package:bot_manager_mobile_app/models/bot_operation_model.dart';
 import 'package:bot_manager_mobile_app/models/bot_property_model.dart';
+import 'package:bot_manager_mobile_app/models/bot_task_model.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
-import 'package:http/http.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 
 class ApiProvider {
+  static const SRV_HOST = '145.239.76.24';
+  static const SRV_PORT = 35678;
+  static const BASE_URL = "http://$SRV_HOST:$SRV_PORT/";
 
-  static const BASE_URL = 'http://145.239.76.24:35678/';
-
-  static Future<T> load<T>(Resource<T> resource, Response response) async {
-    try {
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return resource.parse(response);
-      } else {
-        throw Exception("${response.statusCode} : ${response.body}");
-      }
-    } catch(e) {
-      throw Exception('Something went wrong, please try again. ${e.toString()}');
+  static Future<T> load<T>(Resource<T> resource, Function() responseCaller) async {
+    Response response = await responseCaller();
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      debugPrint('${response.data}');
+      return resource.parse(response);
+    } else {
+      throw Exception("${response.statusCode} : ${json.decode(response.data)["message"]}");
     }
   }
 
   static Future<T> httpGet<T>(Resource<T> resource) async {
-    final response = await new Client().get(resource.url);
-    return load(resource, response);
+    final responseCaller = () => new Dio().get(
+          "$BASE_URL/${resource.url}",
+          options: Options(
+            responseType: ResponseType.plain,
+            validateStatus: (status) => status <= 500,
+          ),
+        );
+    return load(resource, responseCaller);
   }
 
   static Future<T> httpPost<T>(Resource<T> resource, [Object body]) async {
     body ??= "";
-    final response = await new Client().post(resource.url, body: json.encode(body));
-    return load(resource, response);
+    final responseCaller = () => new Dio().post(
+          "$BASE_URL/${resource.url}",
+          data: json.encode(body),
+          options: Options(
+            responseType: ResponseType.plain,
+            validateStatus: (status) => status <= 500,
+          ),
+        );
+    return load(resource, responseCaller);
   }
 
   static Resource<Null> postTransition(int botId, String transition) {
     return Resource(
-      url: "$BASE_URL/bots/bot/$botId/transition/$transition",
+      url: "/bots/bot/$botId/transition/$transition",
       parse: (response) {
         return null;
-      }
+      },
     );
   }
 
   static Resource<GameInfoList> get gameInfoListResource {
     return Resource(
-        url: "$BASE_URL/bots/all",
-        parse: (response) {
-          return GameInfoList.fromJson(json.decode(response.body));
-        }
+      url: "/bots/all",
+      parse: (response) {
+        return GameInfoList.fromJson(json.decode(response.data.toString()));
+      },
     );
   }
 
   static Resource<BotInfo> getBotInfoResource(int botId) {
     return Resource(
-        url: "$BASE_URL/bots/bot/$botId",
-        parse: (response) {
-          return BotInfo.fromJson(json.decode(response.body));
-        }
+      url: "/bots/bot/$botId",
+      parse: (response) {
+        return BotInfo.fromJson(json.decode(response.data.toString()));
+      },
+    );
+  }
+
+  static Resource<BotInfo> createBotResource(int gameId) {
+    return Resource(
+      url: "/bots/$gameId/create",
+      parse: (response) {
+        return BotInfo.fromJson(json.decode(response.data));
+      },
+    );
+  }
+
+  static Resource<BotOperationList> getBotOperationsResource(int botId) {
+    return Resource(
+      url: "/bots/bot/$botId/operations",
+      parse: (response) {
+        return BotOperationList.fromJson(json.decode(response.data.toString()));
+      },
+    );
+  }
+
+  static Resource<OperationResult> postCallOperationResource(int botId, int operationId) {
+    return Resource(
+      url: "/bots/bot/$botId/operation/$operationId/call",
+      parse: (response) {
+        return OperationResult.fromJson(json.decode(response.data.toString()));
+      },
     );
   }
 
   static Resource<BotPropertyList> getGamePropertiesResource(int gameId) {
     return Resource(
-        url: "$BASE_URL/bots/$gameId/properties",
-        parse: (response) {
-          return BotPropertyList.fromJson(json.decode(response.body));
-        }
+      url: "/bots/$gameId/properties",
+      parse: (response) {
+        return BotPropertyList.fromJson(json.decode(response.data.toString()));
+      },
     );
   }
 
   static Resource<Map<String, dynamic>> getBotPropertiesResource(int botId) {
     return Resource(
-        url: "$BASE_URL/bots/bot/$botId/properties",
-        parse: (response) {
-          return json.decode(response.body);
-        }
+      url: "/bots/bot/$botId/properties",
+      parse: (response) {
+        return json.decode(response.data.toString());
+      },
     );
   }
 
+  static Resource<Map<String, dynamic>> updateBotPropertiesResource(int botId) {
+    return Resource(
+      url: "/bots/bot/$botId/properties",
+      parse: (response) {
+        return json.decode(response.data) as Map<String, dynamic>;
+      },
+    );
+  }
+
+  static Resource<List<BotLog>> getBotLogsResource(int botId) {
+    return Resource(
+      url: "/bots/bot/$botId/logs",
+      parse: (response) {
+        return (json.decode(response.data.toString()) as List).map((e) => BotLog.fromJson(e)).toList();
+      },
+    );
+  }
+
+  static Resource<BotTaskList> getBotTasksResource(int botId) {
+    return Resource(
+      url: "/bots/bot/$botId/tasks",
+      parse: (response) {
+        return BotTaskList.fromJson(json.decode(response.data.toString()));
+      },
+    );
+  }
 }
 
 class Resource<T> {
   final String url;
   T Function(Response response) parse;
 
-  Resource({this.url,this.parse});
+  Resource({this.url, this.parse});
 }
