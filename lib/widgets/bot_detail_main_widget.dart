@@ -59,7 +59,7 @@ class BotDetailMainState extends State<BotDetailMainWidget> {
           currentIndex: selectedIndex,
         ),
         body: [
-          BotDetailsHomeWidget(bot),
+          BotDetailsHomeWidget(bot.id),
           BotDetailsEditionWidget(bot),
           BotLogsListWidget(bot),
           BotOperationsWidget(bot, game),

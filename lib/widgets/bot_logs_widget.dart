@@ -17,7 +17,7 @@ class BotLogsListWidget extends StatefulWidget {
   }
 }
 
-class BotLogsListState extends State<BotLogsListWidget> {
+class BotLogsListState extends State<BotLogsListWidget> with WidgetsBindingObserver {
   final BotInfo bot;
   final TextEditingController editingController = TextEditingController();
 
@@ -33,13 +33,25 @@ class BotLogsListState extends State<BotLogsListWidget> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     refreshTimer.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !refreshTimer.isActive) {
+      refreshLogs();
+      refreshTimer = new Timer.periodic(Duration(seconds: 5), (Timer t) => refreshLogs());
+    } else if (state != AppLifecycleState.resumed) {
+      refreshTimer.cancel();
+    }
   }
 
   @override
@@ -47,31 +59,35 @@ class BotLogsListState extends State<BotLogsListWidget> {
     List<BotLog> filteredLogs = filterLogs(filter);
     return new Scaffold(
       body: Container(
-        child: Column(
+        child: Stack(
           children: <Widget>[
             loading ? LinearProgressIndicator() : Container(),
-            TextField(
-              onChanged: (value) {
-                setState(() {
-                  filter = value;
-                });
-              },
-              controller: editingController,
-              decoration: InputDecoration(
-                labelText: "Search",
-                hintText: "Search",
-                prefixIcon: Icon(
-                  Icons.search,
+            Column(
+              children: <Widget>[
+                TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      filter = value;
+                    });
+                  },
+                  controller: editingController,
+                  decoration: InputDecoration(
+                    labelText: "Search",
+                    hintText: "Search",
+                    prefixIcon: Icon(
+                      Icons.search,
+                    ),
+                  ),
                 ),
-              ),
+                Expanded(
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: filteredLogs.length,
+                        itemBuilder: (context, index) {
+                          return buildLogWidget(filteredLogs[index]);
+                        })),
+              ],
             ),
-            Expanded(
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: filteredLogs.length,
-                    itemBuilder: (context, index) {
-                      return buildLogWidget(filteredLogs[index]);
-                    })),
           ],
         ),
       ),

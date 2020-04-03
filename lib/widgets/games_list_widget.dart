@@ -20,6 +20,24 @@ class GamesListWidgetState extends State<GamesListWidget> {
   List<GameInfo> _games = List<GameInfo>();
   Map<int, bool> expandedByGameId = HashMap();
 
+  Timer refreshTimer;
+  int cpt = 0;
+
+  GamesListWidgetState() {
+    refreshTimer = Timer.periodic(Duration(seconds: 10), (timer) {
+      if (ModalRoute.of(context).isCurrent && ModalRoute.of(context).isActive) {
+        setState(() {});
+      }
+    });
+  }
+
+
+  @override
+  void dispose() {
+    refreshTimer.cancel();
+    super.dispose();
+  }
+
   Future<GameInfoList> loadGames() {
     return ApiProvider.httpGet(ApiProvider.gameInfoListResource);
   }
@@ -32,7 +50,9 @@ class GamesListWidgetState extends State<GamesListWidget> {
         expandedByGameId[game.id] = isExpanded;
       },
       title: Text(game.name, style: TextStyle(fontSize: 22)),
-      subtitle: Text('Running bots : ${game.botInfoList.length} (active : ${game.botInfoList.where((e) => e.state == "ACTIVE").length})'),
+      subtitle: Text('Running bots : ${game.botInfoList.length} (active : ${game.botInfoList
+          .where((e) => e.state == "ACTIVE")
+          .length})'),
       children: <Widget>[
         BotsListWidget(gameInfo: game),
         Padding(
@@ -53,7 +73,8 @@ class GamesListWidgetState extends State<GamesListWidget> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => BotCreationWidget(
+            builder: (context) =>
+                BotCreationWidget(
                   game: game,
                 )));
   }
@@ -62,23 +83,23 @@ class GamesListWidgetState extends State<GamesListWidget> {
     return game.iconPath == null
         ? Icons.games
         : AspectRatio(
-            aspectRatio: 1.5,
-            child: new Container(
-              decoration: new BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  borderRadius: new BorderRadius.only(
-                    topLeft: const Radius.circular(15.0),
-                    topRight: const Radius.circular(15.0),
-                    bottomLeft: const Radius.circular(15.0),
-                    bottomRight: const Radius.circular(15.0),
-                  ),
-                  border: Border.all(),
-                  image: new DecorationImage(
-                    fit: BoxFit.fitHeight,
-                    image: NetworkImage(game.iconPath),
-                  )),
+      aspectRatio: 1.5,
+      child: new Container(
+        decoration: new BoxDecoration(
+            shape: BoxShape.rectangle,
+            borderRadius: new BorderRadius.only(
+              topLeft: const Radius.circular(15.0),
+              topRight: const Radius.circular(15.0),
+              bottomLeft: const Radius.circular(15.0),
+              bottomRight: const Radius.circular(15.0),
             ),
-          );
+            border: Border.all(),
+            image: new DecorationImage(
+              fit: BoxFit.fitHeight,
+              image: NetworkImage(game.iconPath),
+            )),
+      ),
+    );
   }
 
   @override
@@ -122,9 +143,10 @@ class GamesListWidgetState extends State<GamesListWidget> {
 
   Widget buildGamesListWidget() {
     return ListView.separated(
-      separatorBuilder: (context, index) => Divider(
-        thickness: 5,
-      ),
+      separatorBuilder: (context, index) =>
+          Divider(
+            thickness: 5,
+          ),
       itemCount: _games.length,
       itemBuilder: (context, index) => _buildGameTile(_games[index]),
     );
