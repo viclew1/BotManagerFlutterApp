@@ -4,6 +4,7 @@ import 'dart:collection';
 import 'package:bot_manager_mobile_app/widgets/bots_list_widget.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
 import 'package:bot_manager_mobile_app/resources/api_provider.dart';
+import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 
 import 'bot_property_detail_widgets.dart';
@@ -42,14 +43,14 @@ class GamesListWidgetState extends State<GamesListWidget> {
     return ApiProvider.httpGet(ApiProvider.gameInfoListResource);
   }
 
-  ExpansionTile _buildGameTile(GameInfo game) {
-    return ExpansionTile(
+  ExpansionTileCard _buildGameTile(GameInfo game) {
+    return ExpansionTileCard(
       leading: buildGameLeadingIcon(game),
       initiallyExpanded: expandedByGameId[game.id] == true,
       onExpansionChanged: (isExpanded) {
         expandedByGameId[game.id] = isExpanded;
       },
-      title: Text(game.name, style: TextStyle(fontSize: 22)),
+      title: Text(game.name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
       subtitle: Text('Running bots : ${game.botInfoList.length} (active : ${game.botInfoList
           .where((e) => e.state == "ACTIVE")
           .length})'),

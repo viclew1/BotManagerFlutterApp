@@ -93,7 +93,7 @@ class BotDetailsHomeState extends State<BotDetailsHomeWidget> with WidgetsBindin
               bot == null
                   ? ListTile()
                   : ListTile(
-                      leading: buildStateIcon(bot.state),
+                      leading: buildStateIcon(context, bot.state),
                       title: Text(bot.state),
                       trailing: buildBotPopupMenuButton(bot, refreshBot),
                     ),

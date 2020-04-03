@@ -26,13 +26,13 @@ class MyApp extends StatelessWidget {
         defaultBrightness: Brightness.dark,
         data: (brightness) => new ThemeData(
             brightness: brightness,
-            primarySwatch: Colors.blueGrey,
-            primaryColor: Colors.blueGrey[800],
-            focusColor: Colors.blueGrey,
-            accentColor: Colors.blueGrey,
-            textSelectionColor: Colors.blueGrey,
-            cursorColor: Colors.blueGrey,
-            textSelectionHandleColor: Colors.blueGrey),
+            primarySwatch: Colors.blue,
+            primaryColor: Colors.blue[900],
+            focusColor: Colors.blueAccent,
+            accentColor: Colors.blueAccent,
+            textSelectionColor: Colors.blue,
+            cursorColor: Colors.blueAccent,
+            textSelectionHandleColor: Colors.blue),
         themedWidgetBuilder: (context, theme) {
           return MaterialApp(
             title: "Bot Manager",

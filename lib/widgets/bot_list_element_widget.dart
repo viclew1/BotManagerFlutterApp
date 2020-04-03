@@ -29,7 +29,7 @@ class BotListElementState extends State<BotListElementWidget> with SingleTickerP
         title: Text(
           bot.login,
         ),
-        leading: buildStateIcon(bot.state),
+        leading: buildStateIcon(context, bot.state),
         onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => BotDetailMainWidget(game, bot)));
         },

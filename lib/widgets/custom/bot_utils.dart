@@ -46,11 +46,11 @@ void _processBotTransition(BotInfo bot, String transition, Function(BotInfo) ref
   });
 }
 
-Widget buildStateIcon(String state) {
+Widget buildStateIcon(BuildContext context, String state) {
   Color color;
   switch (state) {
     case "ACTIVE":
-      color = Colors.green;
+      color = Theme.of(context).accentColor;
       break;
     case "CRASHED":
       color = Colors.amber;

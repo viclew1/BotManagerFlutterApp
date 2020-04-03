@@ -1,11 +1,11 @@
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:bot_manager_mobile_app/models/bot_model.dart';
 import 'package:bot_manager_mobile_app/models/bot_operation_model.dart';
 import 'package:bot_manager_mobile_app/models/bot_property_model.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
 import 'package:bot_manager_mobile_app/resources/api_provider.dart';
+import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -106,8 +106,10 @@ abstract class BotDetailsState extends State<BotDetailsWidget> {
         return SwitchListTile(
           activeColor: Theme.of(context).primaryColor,
           activeTrackColor: Theme.of(context).accentColor,
-          title: new Text(
-            "${key.key}",
+          title: Tooltip(
+            showDuration: Duration(seconds: 5),
+            message: key.description,
+            child: Text(key.key),
           ),
           value: props[key],
           onChanged: (value) {
@@ -119,8 +121,10 @@ abstract class BotDetailsState extends State<BotDetailsWidget> {
       case "INTEGER":
       case "FLOAT":
         return ListTile(
-          title: new Text(
-            "${key.key}",
+          title: Tooltip(
+            showDuration: Duration(seconds: 5),
+            message: key.description,
+            child: Text(key.key),
           ),
           trailing: Container(
             width: 70,
@@ -139,8 +143,10 @@ abstract class BotDetailsState extends State<BotDetailsWidget> {
         );
       default:
         return ListTile(
-          title: new Text(
-            "${key.key}",
+          title: Tooltip(
+            showDuration: Duration(seconds: 5),
+            message: key.description,
+            child: Text(key.key),
           ),
           trailing: Container(
             width: 70,
@@ -386,7 +392,7 @@ class BotOperationProcessState extends BotDetailsState {
     return Column(
       children: List()
         ..add(Expanded(
-            flex: 6,
+            flex: 3,
             child: props.isEmpty
                 ? Center(
                     child: Text(
@@ -404,28 +410,46 @@ class BotOperationProcessState extends BotDetailsState {
         ..add(Text("Result :", style: TextStyle(fontSize: 25)))
         ..add(
           Expanded(
-            flex: 4,
+            flex: 7,
             child: result == null
                 ? Container()
-                : ListTile(
-                    title: Text(
-                      result.message,
-                      style: TextStyle(
-                        fontSize: 25,
-                        color: result.isSuccess ? Colors.green : Colors.red,
+                : ListView(
+                    shrinkWrap: true,
+                    children: <Widget>[
+                      ExpansionTileCard(
+                        title: Text(
+                          result.message,
+                          style: TextStyle(
+                            fontSize: 25,
+                            color: result.isSuccess ? Theme.of(context).accentColor : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        children: <Widget>[
+                          Divider(thickness: 4, indent: 10, endIndent: 10),
+                          result.content == null || result.content.toString().isEmpty
+                              ? Padding(
+                                  padding: EdgeInsets.only(top: 50, bottom: 50),
+                                  child: Text(
+                                    "Empty result content",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                )
+                              : Padding(
+                                  padding: EdgeInsets.only(left: 20),
+                                  child: buildResultWidget(),
+                                ),
+                        ],
                       ),
-                    ),
-                    subtitle: buildResultWidget(),
+                    ],
                   ),
           ),
-        ),
+        )
+        ..add(Expanded(flex: 1, child: Container())),
     );
   }
 
   Widget buildResultWidget() {
-    if (result.content == null) {
-      return Container();
-    }
     switch (result.resultType) {
       case "OBJECT":
         return buildObjectResult(result.content);
@@ -434,80 +458,48 @@ class BotOperationProcessState extends BotDetailsState {
     }
   }
 
-  Widget buildObjectResult(Map<String, dynamic> contentObj, [bool scrollable = true]) {
+  Widget buildObjectResult(Map<String, dynamic> contentObj) {
     List<MapEntry<String, dynamic>> jsonEntries = contentObj.entries.toList();
     return ListView.builder(
-      physics: scrollable ? null : NeverScrollableScrollPhysics(),
       shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       itemCount: jsonEntries.length,
       itemBuilder: (context, index) {
-        if (jsonEntries[index].value is List) {
-          List valueList = jsonEntries[index].value as List;
-          return Column(
+        var item = jsonEntries[index];
+        if (item.value is List) {
+          var itemList = item.value as List;
+          return ExpansionTileCard(
+            title: Text(item.key, style: TextStyle(fontWeight: FontWeight.bold)),
             children: <Widget>[
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(jsonEntries[index].key),
-              ),
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                padding: EdgeInsets.only(left: 20),
                 child: ListView.separated(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
-                  itemCount: valueList.length,
-                  itemBuilder: (context, index) {
-                    if (valueList[index] is Map<String, dynamic>) {
-                      return buildObjectResult(valueList[index] as Map<String, dynamic>, false);
-                    }
-                    return TextFormField(
-                      enabled: false,
-                      initialValue: valueList[index].toString(),
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return Divider();
-                  },
+                  itemCount: itemList.length,
+                  itemBuilder: (subContext, subIndex) => buildObjectResult(itemList[subIndex]),
+                  separatorBuilder: (subContext, i) => Divider(thickness: 2),
                 ),
-              ),
+              )
             ],
           );
-        }
-        if (jsonEntries[index].value is Map<String, dynamic>) {
-          return Column(
+        } else if (item.value is Map<String, dynamic>) {
+          return ExpansionTileCard(
+            title: Text(item.key, style: TextStyle(fontWeight: FontWeight.bold)),
             children: <Widget>[
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(jsonEntries[index].key),
-              ),
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-                child: buildObjectResult(jsonEntries[index].value as Map<String, dynamic>, false),
-              ),
+                padding: EdgeInsets.only(left: 20),
+                child: buildObjectResult(item.value),
+              )
             ],
           );
+        } else if (item.value != null) {
+          return ListTile(
+            title: Text(item.key),
+            trailing: Text(item.value.toString()),
+          );
         }
-        if (jsonEntries[index].value == null) {
-          return Container();
-        }
-        return Row(
-          children: <Widget>[
-            Flexible(
-              flex: 1,
-              child: new Text(
-                jsonEntries[index].key,
-              ),
-              fit: FlexFit.tight,
-            ),
-            Flexible(
-              flex: 1,
-              child: TextFormField(
-                enabled: false,
-                initialValue: jsonEntries[index].value.toString(),
-              ),
-              fit: FlexFit.tight,
-            ),
-          ],
-        );
+        return Container();
       },
     );
   }

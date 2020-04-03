@@ -17,7 +17,7 @@ Drawer buildDrawer(BuildContext context, Function setStateFun) {
           ),
           decoration: BoxDecoration(
             image: DecorationImage(alignment: Alignment.topCenter, image: ICON_IMAGE_PROVIDER, fit: BoxFit.contain),
-            color: Theme.of(context).primaryColor,
+            color: Color.fromRGBO(35, 39, 53, 1),
           ),
         ),
         Divider(
