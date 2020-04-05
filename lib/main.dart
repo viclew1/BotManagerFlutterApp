@@ -1,3 +1,4 @@
+import 'package:bot_manager_mobile_app/resources/api_provider.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   Brightness brightness = (prefs.getBool("isDark") ?? false) ? Brightness.dark : Brightness.light;
+  ApiProvider.srvPort = (prefs.getBool("isTest") ?? false) ? ApiProvider.TEST_PORT : ApiProvider.PROD_PORT;
   runApp(MyApp(brightness));
 }
 

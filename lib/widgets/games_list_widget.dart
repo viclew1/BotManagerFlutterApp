@@ -7,7 +7,7 @@ import 'package:bot_manager_mobile_app/resources/api_provider.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 
-import 'bot_property_detail_widgets.dart';
+import 'bot_creation_widget.dart';
 import 'custom/drawer_builder.dart';
 
 class GamesListWidget extends StatefulWidget {

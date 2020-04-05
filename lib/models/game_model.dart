@@ -14,7 +14,7 @@ class GameInfo {
     return GameInfo(
         id: json["id"],
         name: json["name"],
-        iconPath: '${ApiProvider.BASE_URL}/bots/${json['id']}/icons',
+        iconPath: '${ApiProvider.buildBaseUrl()}/bots/${json['id']}/icons',
         botInfoList: (json["bot_info_list"] as List).map((i) => BotInfo.fromJson(i)).toList());
   }
 }

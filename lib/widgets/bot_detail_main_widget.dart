@@ -4,12 +4,12 @@ import 'package:bot_manager_mobile_app/models/bot_model.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
 import 'package:bot_manager_mobile_app/widgets/bot_logs_widget.dart';
 import 'package:bot_manager_mobile_app/widgets/bot_operations_widget.dart';
-import 'package:bot_manager_mobile_app/widgets/bot_property_detail_widgets.dart';
 import 'package:bot_manager_mobile_app/widgets/custom/drawer_builder.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'bot_details_home_widget.dart';
+import 'bot_edition_widget.dart';
 import 'custom/game_appbar_builder.dart';
 
 class BotDetailMainWidget extends StatefulWidget {
@@ -60,7 +60,7 @@ class BotDetailMainState extends State<BotDetailMainWidget> {
         ),
         body: [
           BotDetailsHomeWidget(bot.id),
-          BotDetailsEditionWidget(bot),
+          BotEditionWidget(bot),
           BotLogsListWidget(bot),
           BotOperationsWidget(bot, game),
         ].elementAt(selectedIndex),

@@ -10,9 +10,16 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 
 class ApiProvider {
-  static const SRV_HOST = '145.239.76.24';
-  static const SRV_PORT = 35678;
-  static const BASE_URL = "http://$SRV_HOST:$SRV_PORT/";
+
+  static const PROD_PORT = 35678;
+  static const TEST_PORT = 35679;
+
+  static String srvHost = '145.239.76.24';
+  static int srvPort;
+
+  static String buildBaseUrl() {
+    return "http://$srvHost:$srvPort/";
+  }
 
   static Future<T> load<T>(Resource<T> resource, Function() responseCaller) async {
     Response response = await responseCaller();
@@ -26,7 +33,7 @@ class ApiProvider {
 
   static Future<T> httpGet<T>(Resource<T> resource) async {
     final responseCaller = () => new Dio().get(
-          "$BASE_URL/${resource.url}",
+          "${buildBaseUrl()}/${resource.url}",
           options: Options(
             responseType: ResponseType.plain,
             validateStatus: (status) => status <= 500,
@@ -38,7 +45,7 @@ class ApiProvider {
   static Future<T> httpPost<T>(Resource<T> resource, [Object body]) async {
     body ??= "";
     final responseCaller = () => new Dio().post(
-          "$BASE_URL/${resource.url}",
+          "${buildBaseUrl()}/${resource.url}",
           data: json.encode(body),
           options: Options(
             responseType: ResponseType.plain,
@@ -105,6 +112,15 @@ class ApiProvider {
   static Resource<BotPropertyList> getGamePropertiesResource(int gameId) {
     return Resource(
       url: "/bots/$gameId/properties",
+      parse: (response) {
+        return BotPropertyList.fromJson(json.decode(response.data.toString()));
+      },
+    );
+  }
+
+  static Resource<BotPropertyList> getGameLoginPropertiesResource(int gameId) {
+    return Resource(
+      url: "/bots/$gameId/loginProperties",
       parse: (response) {
         return BotPropertyList.fromJson(json.decode(response.data.toString()));
       },

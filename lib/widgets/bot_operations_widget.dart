@@ -2,9 +2,10 @@ import 'package:bot_manager_mobile_app/models/bot_model.dart';
 import 'package:bot_manager_mobile_app/models/bot_operation_model.dart';
 import 'package:bot_manager_mobile_app/models/game_model.dart';
 import 'package:bot_manager_mobile_app/resources/api_provider.dart';
-import 'package:bot_manager_mobile_app/widgets/bot_property_detail_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'bot_operation_process_widget.dart';
 
 class BotOperationsWidget extends StatefulWidget {
   final BotInfo bot;
